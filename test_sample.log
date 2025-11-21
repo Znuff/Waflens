@@ -1,0 +1,69 @@
+--8f5347191a77f519-A--
+[17/Nov/2025:04:46:27 +0200] gmyX3S5rUusF3KXKY0zGhS1h 57.141.0.55 42724 192.168.0.1 80
+--8f5347191a77f519-B--
+GET /?p=585 HTTP/1.1
+Accept: */*
+User-Agent: meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)
+Host: mail.example.ro
+Connection: keep-alive
+
+--8f5347191a77f519-F--
+HTTP/1.1 429 Too Many Requests
+
+--8f5347191a77f519-H--
+Message: Access denied with code 429 (phase 1). Test 'IP:req_count' against '@gt 20' is true. [file "/etc/apache2/conf.d/modsec/modsec2.user.conf"] [line "17"] [id "3002"] [msg "Rate limit exceeded"] [MatchedString "30"]
+
+--8f5347191a77f519-Z--
+
+--a3734c1a04ffce27-A--
+[17/Nov/2025:04:46:29 +0200] zIEvRKicxUo9DPN9glQjU176 2a03:2880:f800:23:: 34028 [fe80:02:501:153::2] 80
+--a3734c1a04ffce27-B--
+GET /index.php?title=Special:Log&offset=20170326194524&limit=50&printable=yes&hide_tag_log=0&type=&user= HTTP/1.1
+Accept: */*
+User-Agent: meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)
+Host: somedomain.org
+Connection: keep-alive
+
+--a3734c1a04ffce27-F--
+HTTP/1.1 429 Too Many Requests
+
+--a3734c1a04ffce27-H--
+Message: Access denied with code 429 (phase 1). Test 'IP:req_count' against '@gt 20' is true. [file "/etc/apache2/conf.d/modsec/modsec2.user.conf"] [line "17"] [id "3002"] [msg "Rate limit exceeded"] [MatchedString "23"]
+
+--a3734c1a04ffce27-Z--
+
+--a722fd9cfd66bc48-A--
+[17/Nov/2025:04:46:29 +0200] r1njv-qJGHNVV1SOQSGHM6sm 159.65.141.250 65267 192.168.0.2 80
+--a722fd9cfd66bc48-B--
+GET /wp-login.php HTTP/1.1
+Accept: */*
+User-Agent: Mozilla/5.0
+Accept-Encoding: gzip,deflate
+Host: example.ro
+Connection: Keep-Alive
+
+--a722fd9cfd66bc48-F--
+HTTP/1.1 200 OK
+
+--a722fd9cfd66bc48-H--
+Message: Detected 200 (phase 2). Test 'REQUEST_METHOD' against '!@rx ^POST' is true. [file "/etc/apache2/conf.d/modsec_vendor_configs/imunify360-full-litespeed/005_i360_bruteforce.conf"] [line "187"] [id "77350636"] [msg "IM360 WAF: Access to login page in WordPress (counter)||RSV:7.47||T:LITESPEED||MV:GET||"] [severity "NOTICE"] [tag "wp_core"] [MatchedString "GET"]
+
+--a722fd9cfd66bc48-Z--
+
+--bf33aa4eb14bd8df-A--
+[17/Nov/2025:04:46:30 +0200] h7B@AvsO4J0QTDvnIRkJJjZx 159.65.141.250 51922 192.168.0.3 443
+--bf33aa4eb14bd8df-B--
+GET /wp-login.php HTTP/1.1
+Accept: */*
+User-Agent: Mozilla/5.0
+Accept-Encoding: gzip,deflate
+Host: example.org
+Connection: Keep-Alive
+
+--bf33aa4eb14bd8df-F--
+HTTP/1.1 200 OK
+
+--bf33aa4eb14bd8df-H--
+Message: Detected 200 (phase 2). Test 'REQUEST_METHOD' against '!@rx ^POST' is true. [file "/etc/apache2/conf.d/modsec_vendor_configs/imunify360-full-litespeed/005_i360_bruteforce.conf"] [line "187"] [id "77350636"] [msg "IM360 WAF: Access to login page in WordPress (counter)||RSV:7.47||T:LITESPEED||MV:GET||"] [severity "NOTICE"] [tag "wp_core"] [MatchedString "GET"]
+
+--bf33aa4eb14bd8df-Z--

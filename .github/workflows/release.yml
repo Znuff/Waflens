@@ -1,0 +1,148 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows x86-64
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact_name: waflens.exe
+            asset_name: waflens-$TAG-windows-x86_64.exe
+
+          # Linux x86-64 (glibc)
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact_name: waflens
+            asset_name: waflens-$TAG-linux-x86_64
+
+          # Linux x86-64 (musl - static binary)
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact_name: waflens
+            asset_name: waflens-$TAG-linux-x86_64-musl
+
+          # Provisions for future targets (commented out):
+          # macOS x86-64
+          # - target: x86_64-apple-darwin
+          #   os: macos-latest
+          #   artifact_name: waflens
+          #   asset_name: waflens-$TAG-macos-x86_64
+
+          # macOS ARM64
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          #   artifact_name: waflens
+          #   asset_name: waflens-$TAG-macos-aarch64
+
+          # Linux ARM64
+          # - target: aarch64-unknown-linux-gnu
+          #   os: ubuntu-latest
+          #   artifact_name: waflens
+          #   asset_name: waflens-$TAG-linux-aarch64
+
+          # Linux ARM64 musl
+          # - target: aarch64-unknown-linux-musl
+          #   os: ubuntu-latest
+          #   artifact_name: waflens
+          #   asset_name: waflens-$TAG-linux-aarch64-musl
+
+          # Windows ARM64
+          # - target: aarch64-pc-windows-msvc
+          #   os: windows-latest
+          #   artifact_name: waflens.exe
+          #   asset_name: waflens-$TAG-windows-aarch64.exe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install musl tools (Linux musl only)
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Strip binary (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: strip target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+
+      - name: Prepare artifact name
+        id: artifact
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          ASSET_NAME=$(echo "${{ matrix.asset_name }}" | sed "s/\$TAG/$TAG/g")
+          echo "asset_name=$ASSET_NAME" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.asset_name }}
+          path: target/${{ matrix.target }}/release/${{ matrix.artifact_name }}
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        id: prepare
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+          mkdir -p release
+
+          # Move and rename artifacts
+          find artifacts -type f -exec mv {} release/ \;
+
+          # List all files for verification
+          ls -lh release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Waflens ${{ steps.prepare.outputs.tag }}
+          draft: false
+          prerelease: ${{ contains(steps.prepare.outputs.tag, '-') }}
+          generate_release_notes: true
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
