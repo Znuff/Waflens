@@ -2,7 +2,9 @@
 
 A terminal-based UI (TUI) application for examining ModSecurity audit logs.
 
-The primary motivation for creating this tool was 
+The primary motivation for creating this tool was simply to examine the `modsec_audit.log` file on cPanel/WHM machines.
+
+![Waflens](https://123.456.ro/share/2025/11/termtosvg_objwrsmd.svg)
 
 ## Features
 
