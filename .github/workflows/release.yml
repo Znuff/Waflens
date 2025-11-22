@@ -19,44 +19,44 @@ jobs:
         include:
           # Windows x86-64
           - target: x86_64-pc-windows-msvc
-            os: windows-latest
+            os: windows-2022
             artifact_name: waflens.exe
             asset_name: waflens-$TAG-windows-x86_64.exe
 
           # Linux x86-64 (glibc)
           - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
+            os: ubuntu-22.04
             artifact_name: waflens
             asset_name: waflens-$TAG-linux-x86_64
 
           # Linux x86-64 (musl - static binary)
           - target: x86_64-unknown-linux-musl
-            os: ubuntu-latest
+            os: ubuntu-22.04
             artifact_name: waflens
             asset_name: waflens-$TAG-linux-x86_64-musl
 
           # Provisions for future targets (commented out):
           # macOS x86-64
           # - target: x86_64-apple-darwin
-          #   os: macos-latest
+          #   os: macos-14-large
           #   artifact_name: waflens
           #   asset_name: waflens-$TAG-macos-x86_64
 
           # macOS ARM64
           # - target: aarch64-apple-darwin
-          #   os: macos-latest
+          #   os: macos-14-xlarge
           #   artifact_name: waflens
           #   asset_name: waflens-$TAG-macos-aarch64
 
           # Linux ARM64
           # - target: aarch64-unknown-linux-gnu
-          #   os: ubuntu-latest
+          #   os: ubuntu-22.04
           #   artifact_name: waflens
           #   asset_name: waflens-$TAG-linux-aarch64
 
           # Linux ARM64 musl
           # - target: aarch64-unknown-linux-musl
-          #   os: ubuntu-latest
+          #   os: ubuntu-22.04
           #   artifact_name: waflens
           #   asset_name: waflens-$TAG-linux-aarch64-musl
 
@@ -130,8 +130,19 @@ jobs:
 
           mkdir -p release
 
-          # Move and rename artifacts
-          find artifacts -type f -exec mv {} release/ \;
+          # Move and rename artifacts from subdirectories
+          for dir in artifacts/*/; do
+            if [ -d "$dir" ]; then
+              # Get the artifact name (directory name)
+              artifact_name=$(basename "$dir")
+              # Find the file in this directory and rename it
+              for file in "$dir"*; do
+                if [ -f "$file" ]; then
+                  mv "$file" "release/$artifact_name"
+                fi
+              done
+            fi
+          done
 
           # List all files for verification
           ls -lh release/
